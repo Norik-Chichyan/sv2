@@ -60,6 +60,7 @@
         state: present
         update_cache: yes
       become: yes
+
     - name: 'Installing maven'
       apt:
         name: maven
@@ -79,12 +80,23 @@
     - name: 'Setup sv2 config'
       template:
         src: 'application.tmpl'
-        dest: '/home/ubuntu/sv2/sv2-repo/src/main/resources/application.yml'
+        dest: '/home/ubuntu/sv2-repo/src/main/resources/application.yml'
         #become: yes
 
-    - name: 'run mvn'
-      shell: cd /home/ubuntu/sv2/sv2-repo/ && mvn clean package
+        #    - name: 'go to mvn dir'
+        #      shell: cd /home/ubuntu/sv2-repo/
+     
       #become: yes
+      #    - name: 'run mvn'
+      #  shell: cd /home/ubuntu/sv2-repo/ && mvn clean package
+    
+    - name: Running mvn clean
+      shell: "cd /home/ubuntu/sv2-repo/ && mvn clean package"
+      register: mvn_result
+
+    - name: "mvn clean task output"
+      debug:
+        var: mvn_result  
 
     - name: 'Setup sv2 service file'
       template:

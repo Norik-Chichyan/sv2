@@ -34,10 +34,10 @@ spring:
     - org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration
   cloud:
     consul:
-      host: <consul FQDN/IP>
+      host: 172.31.60.95
       port: 8500
       discovery:
-        hostName: <application host FQDN/IP>
+        hostName: 172.31.48.173
         instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
         healthCheckPath: ${management.contextPath}/health
         healthCheckInterval: 15s
@@ -54,10 +54,10 @@ spring:
     properties.hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: true
   rabbitmq:
-    host: <RabbitMQ FQDN/IP>
+    host: 172.31.12.8
     port: 5672
-    username: <RabbitMQ username>
-    password: <RabbitMQ password>
+    username: rabbitmq
+    password: Aa123456
     virtualHost: /
 
 logstash:
