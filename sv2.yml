@@ -1,6 +1,6 @@
 ---
 - name: 'sv2 installing with playbook'
-  hosts: 'webservers'
+  hosts: '127.0.0.1'
   #  hosts: 127.0.0.1
 # tasks file for consul install
   tasks:
@@ -10,9 +10,18 @@
 
     - name: 'Install MySQL server'
       apt:
-        name: mysql-server
+        name: 
+        - 'mysql-server'
+        - 'python3-pip'
+        - 'python3-pymysql'  
         state: present
       become: yes
+    
+    - name: install pymysql
+      become: yes
+      pip:
+        name: pymysql
+        state: present
 
     - name: set root mysql password
       mysql_user:
@@ -25,7 +34,7 @@
                login_unix_socket: /var/run/mysqld/mysqld.sock
       become: yes  
 
-      - name: 'create sv2 db'
+    - name: 'create sv2 db'
       mysql_db:
              name: 'sv2db'
              state: present
@@ -37,7 +46,7 @@
     - name: Create sv2db mysql user
       mysql_user:
              name: "sv2dbuser"
-             password: "sv2dvpass"
+             password: "sv2dbpass"
              priv: "*.*:ALL"
              login_user: root
              login_password: "Aa123456"
@@ -67,20 +76,21 @@
       shell: git clone https://github.com/Norik-Chichyan/sv2-repo.git
       when: not repoexist.stat.exists      
    
-   - name: 'Setup sv2 config'
+    - name: 'Setup sv2 config'
       template:
         src: 'application.tmpl'
-        dest: '/home/ubuntu/sv2-repo/src/main/resources/application.yml'
-      become: yes
+        dest: '/home/ubuntu/sv2/sv2-repo/src/main/resources/application.yml'
+        #become: yes
 
-    - name: run mvn
-      shell: cd sv2-repo/ && mvn clean package
-      become: yes
+    - name: 'run mvn'
+      shell: cd /home/ubuntu/sv2/sv2-repo/ && mvn clean package
+      #become: yes
 
     - name: 'Setup sv2 service file'
       template:
         src: 'sv2-service'
         dest: '/etc/systemd/system/sv2.service'
+        # remote_src: yes
       become: yes
     
     - name: sv2 service enabled
