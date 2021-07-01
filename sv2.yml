@@ -1,0 +1,98 @@
+---
+- name: 'sv2 installing with playbook'
+  hosts: 'webservers'
+  #  hosts: 127.0.0.1
+# tasks file for consul install
+  tasks:
+    - name: Update apt-get repo and cache
+      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+      become: yes
+
+    - name: 'Install MySQL server'
+      apt:
+        name: mysql-server
+        state: present
+      become: yes
+
+    - name: set root mysql password
+      mysql_user:
+               name: root
+               password: "Aa123456"
+               login_user: root
+               login_password: "Aa123456"
+               check_implicit_admin: yes
+               priv: "*.*:ALL,GRANT"
+               login_unix_socket: /var/run/mysqld/mysqld.sock
+      become: yes  
+
+      - name: 'create sv2 db'
+      mysql_db:
+             name: 'sv2db'
+             state: present
+             login_user: root
+             login_password: "Aa123456"
+             login_unix_socket: /var/run/mysqld/mysqld.sock
+      become: yes
+
+    - name: Create sv2db mysql user
+      mysql_user:
+             name: "sv2dbuser"
+             password: "sv2dvpass"
+             priv: "*.*:ALL"
+             login_user: root
+             login_password: "Aa123456"
+             login_unix_socket: /var/run/mysqld/mysqld.sock
+      become: yes
+
+
+    - name: 'Installing java 8'
+      apt:
+        name: openjdk-8-jdk
+        state: present
+        update_cache: yes
+      become: yes
+    - name: 'Installing maven'
+      apt:
+        name: maven
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: check repo exist or not
+      stat:
+        path: "sv2-repo/"
+      register: repoexist
+
+    - name: git clone
+      shell: git clone https://github.com/Norik-Chichyan/sv2-repo.git
+      when: not repoexist.stat.exists      
+   
+   - name: 'Setup sv2 config'
+      template:
+        src: 'application.tmpl'
+        dest: '/home/ubuntu/sv2-repo/src/main/resources/application.yml'
+      become: yes
+
+    - name: run mvn
+      shell: cd sv2-repo/ && mvn clean package
+      become: yes
+
+    - name: 'Setup sv2 service file'
+      template:
+        src: 'sv2-service'
+        dest: '/etc/systemd/system/sv2.service'
+      become: yes
+    
+    - name: sv2 service enabled
+      ansible.builtin.service:
+        name: sv2.service
+        enabled: yes
+      become: yes
+
+    - name: sv2 service start and daemon-reload
+      ansible.builtin.service:
+        name: sv2.service
+        state: started
+        daemon_reload: yes
+      become: yes
+   

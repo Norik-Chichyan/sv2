@@ -1,0 +1,86 @@
+---
+- name: 'web-app installing with playbook'
+  hosts: 'webservers'
+  #  hosts: 127.0.0.1
+# tasks file for consul install
+  tasks:
+    - name: Update apt-get repo and cache
+      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+      become: yes
+
+    - name: "Add nodejs"
+      shell: curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+      #arn: false
+      #update_cache: yes
+      become: yes
+
+      #    - name: add trusted key
+      #shell: wget -O- https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc | sudo apt-key add -
+      #become: yes
+    - name: 'Installing nodejs'
+      apt:
+        name: nodejs
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: check repo exist or not
+      stat:
+        path: "web-app-epam/"
+      register: repoexist
+
+    - name: git clone
+      shell: git clone https://github.com/Norik-Chichyan/web-app-epam.git
+      when: not repoexist.stat.exists      
+    
+    - name: install angular
+      shell: cd web-app-epam/ && npm install -g @angular/cli
+      become: yes
+    
+    - name: install angular dev-kit
+      shell: cd web-app-epam/ && npm install --save-dev @angular-devkit/build-angular
+      become: yes
+    
+      #    - name: check repo exist or not
+      #stat:
+      #  path: "web-app-epam/"
+      #register: repoexist
+        
+      # - name: git clone
+      #shell: git clone https://github.com/Norik-Chichyan/web-app-epam.git
+      #when: not repoexist.stat.exists
+
+      #    - name: change dir 
+      #      shell: cd web-app-epam/
+    
+      # - name: build angular
+      #shell: npm run build --prefix web-app-epam/
+
+      #    - name: nmp audit fix 
+      #      shell: npm audit fix --force web-app-epam/
+    
+      #    - name: ng listenting ip
+      #      shell: cd web-app-epam/ && ng serve --host 0.0.0.0
+    - name: 'Setup webapp service file'
+      template:
+        src: 'webapp-service'
+        dest: '/etc/systemd/system/webapp.service'
+      become: yes
+      #    - name: Change the working directory to somedir/ and run the command as db_owner if /path/to/database does not exist.
+      # command: /usr/bin/make_database.sh db_user db_name
+      #become: yes
+    - name: webapp service enabled
+      ansible.builtin.service:
+        name: webapp.service
+        enabled: yes
+      become: yes
+
+    - name: web service start and daemon-reload
+      ansible.builtin.service:
+        name: webapp.service
+        state: started
+        daemon_reload: yes
+      become: yes
+   
+      #    - name: build angular
+      #      shell: npm run build --prefix web-app-epam/
