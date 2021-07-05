@@ -1,0 +1,15 @@
+[Unit]
+Description=MyWeb Application
+After=network-online.target
+
+[Service]
+Restart=on-failure
+WorkingDirectory=/home/ubuntu/web-app-epam/
+ExecStart=/usr/lib/node_modules/@angular/cli/bin/ng serve --host 0.0.0.0
+CPUAccounting=true
+CPUQuota=50%
+MemoryAccounting=true
+MemoryLimit=1024M
+
+[Install]
+WantedBy=multi-user.target
