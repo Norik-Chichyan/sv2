@@ -37,7 +37,7 @@ spring:
       host: 172.31.60.95
       port: 8500
       discovery:
-        hostName: 172.31.48.173
+        hostName: 172.31.15.38
         instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
         healthCheckPath: ${management.contextPath}/health
         healthCheckInterval: 15s
@@ -54,10 +54,10 @@ spring:
     properties.hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: true
   rabbitmq:
-    host: 172.31.12.8
+    host: 44.194.248.0
     port: 5672
-    username: rabbitmq
-    password: Aa123456
+    username: rabbit
+    password: passw0rd
     virtualHost: /
 
 logstash:
