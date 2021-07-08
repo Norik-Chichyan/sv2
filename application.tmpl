@@ -37,7 +37,7 @@ spring:
       host: 172.31.60.95
       port: 8500
       discovery:
-        hostName: 172.31.15.38
+        hostName: 172.31.65.70
         instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
         healthCheckPath: ${management.contextPath}/health
         healthCheckInterval: 15s
@@ -60,8 +60,8 @@ spring:
     password: passw0rd
     virtualHost: /
 
-logstash:
-  servers: <Logstash FQDN/IP>:5000
+#logstash:
+#  servers: <Logstash FQDN/IP>:5000
 
 logging:
   file: service-two-application.log
